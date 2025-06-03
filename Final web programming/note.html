@@ -1,0 +1,2385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlanMyTrip - AI-Powered Travel Planner</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      --light-bg: rgba(255, 255, 255, 0.95);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --text-light: #6c757d;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .hero-bg {
+      background: linear-gradient(rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8)), 
+                  url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .floating-shapes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .floating-shapes::before,
+    .floating-shapes::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-shapes::before {
+      width: 200px;
+      height: 200px;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-shapes::after {
+      width: 300px;
+      height: 300px;
+      top: 60%;
+      right: 15%;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .navbar {
+      background: var(--glass-bg) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.8rem;
+      background: linear-gradient(45deg, #fff, #f8f9fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      padding: 0.5rem 1rem !important;
+      border-radius: 25px;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: #fff !important;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 100px 0;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .hero-subtitle {
+      font-size: 1.4rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2rem;
+      animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .btn-hero {
+      background: var(--secondary-gradient);
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+      animation: fadeInUp 1s ease-out 0.4s both;
+    }
+
+    .btn-hero:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      color: #fff;
+    }
+
+    .glass-card {
+      background: var(--light-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 3rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-control,
+    .form-select {
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      background: #fff;
+    }
+
+    .btn-gradient {
+      background: var(--primary-gradient);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      padding: 12px 30px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      color: #fff;
+    }
+
+    .btn-surprise {
+      background: var(--secondary-gradient);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      padding: 12px 30px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-surprise:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      color: #fff;
+    }
+
+    .city-card {
+      background: var(--light-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 100%;
+    }
+
+    .city-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .city-card img {
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .city-card:hover img {
+      transform: scale(1.1);
+    }
+
+    .feature-box {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .feature-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .spinner {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .spinner .spinner-border {
+      width: 3rem;
+      height: 3rem;
+      border-width: 0.3em;
+    }
+
+    .footer {
+      background: var(--dark-gradient);
+      color: #fff;
+      padding: 3rem 0 2rem;
+      margin-top: 4rem;
+    }
+
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 2rem 0;
+    }
+
+    .itinerary-result {
+      background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: var(--shadow);
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .badge-custom {
+      background: var(--accent-gradient);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+    }
+
+    .animate-pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#" onclick="showPage('hero')">
+        <i class="fas fa-map-marked-alt me-2"></i>PlanMyTrip
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showPage('hero', event)">
+              <i class="fas fa-home me-1"></i>Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showPage('planner', event)">
+              <i class="fas fa-route me-1"></i>Plan Trip
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showPage('places', event)">
+              <i class="fas fa-map-marker-alt me-1"></i>Places
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showPage('about', event)">
+              <i class="fas fa-info-circle me-1"></i>About
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Page -->
+  <div id="hero" class="page hero-bg">
+    <div class="floating-shapes"></div>
+    <div class="hero-content">
+      <div class="container">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-8">
+            <div class="badge-custom">
+              <i class="fas fa-sparkles me-2"></i>Database-Powered Travel Planning
+            </div>
+            <h1 class="hero-title">Plan Your Perfect<br><span style="background: linear-gradient(45deg, #ffd700, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Taiwan Adventure</span></h1>
+            <p class="hero-subtitle">Discover Taiwan's hidden gems with personalized itineraries crafted just for you. From bustling night markets to serene mountain views.</p>
+            <a href="#" onclick="showPage('planner')" class="btn-hero">
+              <i class="fas fa-rocket me-2"></i>Start Planning Now
+            </a>
+          </div>
+        </div>
+        
+        <!-- Feature Cards -->
+        <div class="row mt-5">
+          <div class="col-md-4 mb-4">
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-map-marked-alt"></i>
+              </div>
+              <h5 class="text-white mb-3">10+ Cities</h5>
+              <p class="text-white-50">Explore Taiwan's most beautiful destinations</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h5 class="text-white mb-3">Custom Duration</h5>
+              <p class="text-white-50">Plan trips from 1 day to 30 days</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-brain"></i>
+              </div>
+              <h5 class="text-white mb-3">Data-Powered</h5>
+              <p class="text-white-50">Smart recommendations based on your interests</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trip Planner Page -->
+  <div id="planner" class="page" style="display: none;">
+    <div class="container">
+      <style>
+        .section-title {
+          margin-top: 50px; /* Adjust the value to control the space above */
+        }
+      </style>
+      <h1 class="section-title">Plan Your Taiwan Adventure</h1>
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-4">
+            <form id="tripForm">
+              <div class="mb-4">
+                <label for="destination" class="form-label h5">
+                  <i class="fas fa-map-marker-alt me-2"></i>Where do you want to go? (Pick up 1 or 2 cities)
+                </label>
+                <select multiple class="form-select" id="destination" required>
+                  <option value="Taipei">Taipei</option>
+                  <option value="Kaohsiung">Kaohsiung</option>
+                  <option value="Taichung">Taichung</option>
+                  <option value="Tainan">Tainan</option>
+                  <option value="Keelung">Keelung</option>
+                  <option value="Hualien">Hualien</option>
+                  <option value="Chiayi">Chiayi</option>
+                  <option value="Taoyuan">Taoyuan</option>
+                  <option value="Miaoli">Miaoli</option>
+                  <option value="Pingtung">Pingtung</option>
+                </select>
+                <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select up to two.</small>
+              </div>
+
+              <div class="mb-4">
+                <label for="days" class="form-label h5">
+                  <i class="fas fa-calendar me-2"></i>How many days?
+                </label>
+                <input type="number" class="form-control" id="days" placeholder="e.g., 5" required min="1" max="30">
+              </div>
+
+              <div class="mb-4">
+                <label for="interests" class="form-label h5">
+                  <i class="fas fa-heart me-2"></i>What are your interests?
+                </label>
+                <select multiple class="form-select" id="interests">
+                  <option value="Food">🍝 Food</option>
+                  <option value="Nature">🌳 Nature</option>
+                  <option value="Museums">🏛️ Museums</option>
+                  <option value="Shopping">🛍️ Shopping</option>
+                  <option value="Adventure">🏞️ Adventure</option>
+                  <option value="Relaxation">🧘 Relaxation</option>
+                </select>
+                <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+              </div>
+
+              <div class="text-center">
+                <button type="submit" class="btn btn-gradient btn-lg me-3">
+                  <i class="fas fa-magic me-2"></i>Generate Itinerary
+                </button>
+                <button type="button" onclick="surpriseMe()" class="btn btn-surprise btn-lg">
+                  <i class="fas fa-dice me-2"></i>Surprise Me 🎲
+                </button>
+              </div>
+            </form>
+
+            <!-- Spinner -->
+            <div id="spinner" class="spinner">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Creating your perfect itinerary...</p>
+            </div>
+          </div>
+
+          <!-- Itinerary Result -->
+          <div id="itinerary" class="itinerary-result" style="display: none;">
+            <h3 class="text-center mb-4">
+              <i class="fas fa-route me-2"></i>Your Custom Itinerary
+            </h3>
+            <div id="itineraryContent"></div>
+            <div class="text-center mt-4">
+              <button onclick="saveItinerary()" class="btn btn-gradient">
+                <i class="fas fa-download me-2"></i>Save Itinerary
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Places Page -->
+  <div id="places" class="page" style="display: none;">
+    <div class="container">
+      <h1 class="section-title">Discover Taiwan</h1>
+      <p class="text-center text-white-50 fs-5 mb-5">Explore the most beautiful cities and destinations across Taiwan</p>
+      
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('taipei')">
+            <img src="Taiwan Image/01 Taipei Taiwan.png" class="w-100" alt="Taipei">
+            <div class="p-4">
+              <h5 class="card-title">🏙️ Taipei</h5>
+              <p class="card-text text-muted">The vibrant capital of Taiwan, known for its night markets, Taipei 101 skyscraper, and rich cultural heritage.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('kaohsiung')">
+            <img src="Taiwan Image/02 Kaohsiung Taiwan.png" class="w-100" alt="Kaohsiung">
+            <div class="p-4">
+              <h5 class="card-title">⚓ Kaohsiung</h5>
+              <p class="card-text text-muted">A vibrant harbor city famous for its art scene, night markets, and beautiful Cijin Island beaches.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('taichung')">
+            <img src="Taiwan Image/03 Taichung Taiwan.png" class="w-100" alt="Taichung">
+            <div class="p-4">
+              <h5 class="card-title">🎨 Taichung</h5>
+              <p class="card-text text-muted">A perfect blend of modern urban vibes and natural beauty with parks, museums, and bustling night markets.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('tainan')">
+            <img src="Taiwan Image/04 Tainan Taiwan.png" class="w-100" alt="Tainan">
+            <div class="p-4">
+              <h5 class="card-title">🏮 Tainan</h5>
+              <p class="card-text text-muted">Taiwan’s oldest city, rich in temples, history, and famous for its traditional street food and cultural festivals.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('keelung')">
+            <img src="Taiwan Image/10 Keelung Taiwan.png" class="w-100" alt="Keelung">
+            <div class="p-4">
+              <h5 class="card-title">🌧️ Keelung</h5>
+              <p class="card-text text-muted">A northern port city famous for its rainy weather, Miaokou Night Market, and lively Ghost Festival.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('hualien')">
+            <img src="Taiwan Image/05 Hualien Taiwan.png" class="w-100" alt="Hualien">
+            <div class="p-4">
+              <h5 class="card-title">⛰️ Hualien</h5>
+              <p class="card-text text-muted">Gateway to Taroko Gorge, Hualien offers dramatic mountain views, nature trails, and indigenous cultural experiences.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('chiayi')">
+            <img src="Taiwan Image/07 Chiayi Taiwan.png" class="w-100" alt="Chiayi">
+            <div class="p-4">
+              <h5 class="card-title">🚂 Chiayi</h5>
+              <p class="card-text text-muted">Starting point for Alishan adventures, Chiayi is known for turkey rice, forest railways, and Japanese-era architecture.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('taoyuan')">
+            <img src="Taiwan Image/Taoyuan-City.jpg" class="w-100" alt="Taoyuan">
+            <div class="p-4">
+              <h5 class="card-title">✈️ Taoyuan</h5>
+              <p class="card-text text-muted">An industrial and transport hub, Taoyuan features Hakka villages, cultural sites, and Taiwan’s main international airport.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('miaoli')">
+            <img src="Taiwan Image/miaoli-lion-head-mountain.jpg" class="w-100" alt="Miaoli">
+            <div class="p-4">
+              <h5 class="card-title">🌄 Miaoli</h5>
+              <p class="card-text text-muted">A hilly, peaceful region rich in Hakka culture, known for wood sculpture art and scenic railway towns.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+
+        <div class="col-md-4">
+          <div class="city-card" onclick="showCityDetails('pingtung')">
+            <img src="Taiwan Image/caption.jpg" class="w-100" alt="Pingtung">
+            <div class="p-4">
+              <h5 class="card-title">🏖️ Pingtung</h5>
+              <p class="card-text text-muted">Taiwan’s southern gem, home to Kenting National Park, stunning beaches, and vibrant indigenous cultures.</p>
+              <div class="text-warning mb-2">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Call to Action -->
+      <div class="glass-card p-5 mt-5 text-center">
+        <h3 class="mb-3">Ready to Start Planning?</h3>
+        <p class="text-muted mb-4">Create your personalized Taiwan itinerary with our AI-powered planner. Get recommendations tailored to your interests and travel style.</p>
+        <a href="#" onclick="showPage('planner')" class="btn btn-gradient btn-lg">
+          <i class="fas fa-star me-2"></i>Plan My Trip
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- City Details Pages -->
+  <div id="taipeiDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Taipei 🏙️</h1>
+            <p class="lead text-muted mb-4">The vibrant capital of Taiwan, known for its night markets, Taipei 101 skyscraper, and rich cultural heritage.</p>
+            
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🍜</span>
+                  <span>Shilin Night Market</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏔️</span>
+                  <span>Elephant Mountain</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏛️</span>
+                  <span>National Palace Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛍️</span>
+                  <span>Taipei 101 Mall</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚡</span>
+                  <span>Maokong Gondola</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">♨️</span>
+                  <span>Beitou Hot Springs</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mb-3">Food</h4>
+            <ul class="mb-4">
+              <li>Din Tai Fung</li>
+              <li>Yongkang Street Food</li>
+              <li>Ningxia Night Market</li>
+              <li>Tonghua Night Market</li>
+              <li>Addiction Aquatic Development</li>
+              <li>Beef Noodle Soup Alley (Yongkang St.)</li>
+              <li>Fuhang Soy Milk</li>
+              <li>Ay-Chung Flour-Rice Noodle</li>
+              <li>Ice Monster</li>
+              <li>Lehua Night Market</li>
+              <li>Linjiang Street Night Market</li>
+            </ul>
+  
+            <h4 class="mb-3">Nature</h4>
+            <ul class="mb-4">
+              <li>Yangmingshan National Park</li>
+              <li>Daan Forest Park</li>
+              <li>Maokong Tea Plantations</li>
+              <li>Treasure Hill Artist Village</li>
+              <li>Zhishan Garden</li>
+              <li>Guandu Nature Park</li>
+              <li>Taipei Botanical Garden</li>
+              <li>Jiantan Mountain Hiking Trail</li>
+              <li>Bitan Scenic Area</li>
+              <li>Fuyang Eco Park</li>
+            </ul>
+  
+            <h4 class="mb-3">Museums</h4>
+            <ul class="mb-4">
+              <li>Chiang Kai-shek Memorial Hall</li>
+              <li>Museum of Contemporary Art (MOCA)</li>
+              <li>National Taiwan Museum</li>
+              <li>Shung Ye Museum of Formosan Aborigines</li>
+              <li>Postal Museum</li>
+              <li>Taipei Fine Arts Museum</li>
+              <li>Museum of World Religions</li>
+              <li>Miniatures Museum of Taiwan</li>
+              <li>Songshan Cultural and Creative Park</li>
+              <li>Taipei Astronomical Museum</li>
+              <li>Discovery Center of Taipei</li>
+            </ul>
+  
+            <h4 class="mb-3">Shopping</h4>
+            <ul class="mb-4">
+              <li>Ximending</li>
+              <li>Songshan Cultural and Creative Park</li>
+              <li>Breeze Center</li>
+              <li>Q Square Mall</li>
+              <li>ATT 4 Fun</li>
+              <li>SOGO Zhongxiao Fuxing</li>
+              <li>Miramar Entertainment Park</li>
+              <li>Taipei City Mall</li>
+              <li>Wufenpu Garment Wholesale Area</li>
+              <li>Eslite Spectrum Songyan</li>
+              <li>Shin Kong Mitsukoshi (Xinyi)</li>
+            </ul>
+  
+            <h4 class="mb-3">Adventure</h4>
+            <ul class="mb-4">
+              <li>River Biking along Tamsui River</li>
+              <li>Urban zipline at Dajia Riverside Park</li>
+              <li>Yangmingshan Hot Spring Trails</li>
+              <li>Camping at Fuyang Eco Park</li>
+              <li>Night Biking along Keelung River</li>
+              <li>Paragliding at Wanli</li>
+              <li>Urban Camping in Beitou</li>
+              <li>Exploring Elephant Mountain Caves</li>
+              <li>Jet Ski at Bitan</li>
+              <li>Mountain Climbing at Qixing Mountain</li>
+            </ul>
+  
+            <h4 class="mb-3">Relaxation</h4>
+            <ul>
+              <li>Taipei Water Park</li>
+              <li>Thermal Valley</li>
+              <li>Taipei Garden Spa</li>
+              <li>Xinbeitou Historic Station</li>
+              <li>Relax at Bitan Scenic Area</li>
+              <li>Tamsui Old Street Sunset</li>
+              <li>Maokong Gondola Tea House visits</li>
+              <li>Yinhe Cave Waterfall</li>
+              <li>Grand View Resort Spa</li>
+              <li>Jingmei Riverside Park</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="kaohsiungDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Kaohsiung ⚓</h1>
+            <p class="lead text-muted mb-4">A vibrant harbor city famous for its art scene, night markets, and beautiful Cijin Island beaches.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3 mb-5">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🎨</span>
+                  <span>Pier-2 Art Center</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌉</span>
+                  <span>Love River</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏯</span>
+                  <span>Fo Guang Shan Buddha Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛤️</span>
+                  <span>Cijin Island & Ferry</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚋</span>
+                  <span>Kaohsiung Light Rail</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌅</span>
+                  <span>Sizihwan Bay Sunset</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mb-3">Explore by Category</h4>
+  
+            <div class="mb-4">
+              <h5>🍜 Food</h5>
+              <ul>
+                <li>Ruifeng Night Market</li>
+                <li>Liuhe Night Market</li>
+                <li>Harbour Seafood</li>
+                <li>Cijin Old Street Seafood</li>
+                <li>Kaohsiung Duck Rice</li>
+                <li>Gangshan Mutton Hotpot</li>
+                <li>Fengshan Night Market</li>
+                <li>Yancheng Duck Rice</li>
+                <li>Gushan Ferry Market</li>
+                <li>Xinjiang BBQ Street</li>
+                <li>Guanghua Night Market</li>
+                <li>Bo'ai Road Dim Sum</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🌿 Nature</h5>
+              <ul>
+                <li>Cijin Island</li>
+                <li>Shoushan (Monkey Mountain)</li>
+                <li>Lotus Pond</li>
+                <li>Sizihwan Bay</li>
+                <li>Kaohsiung Harbor</li>
+                <li>Dapingding Wetland</li>
+                <li>Fo Guang Shan Buddha Museum</li>
+                <li>Weiwuying Park</li>
+                <li>Shoushan Zoo</li>
+                <li>Qijin Shell Museum</li>
+                <li>Meinong Lake</li>
+                <li>Chengcing Lake</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🏛️ Museums</h5>
+              <ul>
+                <li>Pier-2 Art Center</li>
+                <li>Kaohsiung Museum of Fine Arts</li>
+                <li>National Science and Technology Museum</li>
+                <li>Kaohsiung Museum of History</li>
+                <li>Takao Railway Museum</li>
+                <li>Cijin Shell Museum</li>
+                <li>Military Dependents' Village Museum</li>
+                <li>Former British Consulate at Takao</li>
+                <li>Weiwuying Cultural Center</li>
+                <li>Kaohsiung Hakka Cultural Museum</li>
+                <li>Hongmaogang Cultural Park</li>
+                <li>Fo Guang Shan Buddha Museum</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🛍️ Shopping</h5>
+              <ul>
+                <li>Dream Mall</li>
+                <li>Hanshin Department Store</li>
+                <li>Taroko Park</li>
+                <li>E-DA Outlet Mall</li>
+                <li>SKM Park</li>
+                <li>SOGO Kaohsiung</li>
+                <li>Rueifong Night Market Shopping</li>
+                <li>Cijin Island Souvenirs</li>
+                <li>New Jyuejiang Shopping Area</li>
+                <li>Yancheng District Art Markets</li>
+                <li>Sanduo Shopping District</li>
+                <li>Kaohsiung Main Station Underground Mall</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🚣 Adventure</h5>
+              <ul>
+                <li>Love River Kayaking</li>
+                <li>Sizihwan Bay Adventures</li>
+                <li>Jet Ski at Cijin Beach</li>
+                <li>Snorkeling at Cijin</li>
+                <li>Paragliding near Fo Guang Shan</li>
+                <li>Urban Zipline at Dream Mall</li>
+                <li>Mountain Biking at Shoushan</li>
+                <li>Hiking Banping Mountain</li>
+                <li>Windsurfing Sizihwan</li>
+                <li>Kayaking around Lotus Pond</li>
+                <li>Boat Rides at Love River</li>
+                <li>Scuba Diving at Xiaoliuqiu (nearby)</li>
+              </ul>
+            </div>
+  
+            <div>
+              <h5>🧘 Relaxation</h5>
+              <ul>
+                <li>Cijin Beach</li>
+                <li>Central Park</li>
+                <li>Lotus Pond</li>
+                <li>Pier-2 Seaside Park</li>
+                <li>Relax at Kaohsiung Harbor Walk</li>
+                <li>Weiwuying Park picnics</li>
+                <li>Meinong Cultural Villages</li>
+                <li>Chengcing Lake walks</li>
+                <li>Sunset at Sizihwan</li>
+                <li>Hot Springs at Tianliao</li>
+                <li>Wandering Love River Promenade</li>
+                <li>Seaview Cafes at Cijin Island</li>
+              </ul>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="taichungDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Taichung 🌄</h1>
+            <p class="lead text-muted mb-4">
+              A perfect blend of modern urban vibes and natural beauty with parks, museums, and bustling night markets.
+            </p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌈</span>
+                  <span>Rainbow Village</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛍️</span>
+                  <span>Fengjia Night Market</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏛️</span>
+                  <span>National Taiwan Museum of Fine Arts</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌳</span>
+                  <span>Taichung Park</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏰</span>
+                  <span>Miyahara Ice Cream</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚴</span>
+                  <span>Gaomei Wetlands</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">Categories</h4>
+  
+            <div class="mb-4">
+              <h5>🍜 Food</h5>
+              <ul>
+                <li>Fengjia Night Market</li>
+                <li>Miyahara Ice Cream</li>
+                <li>Second Market Traditional Foods</li>
+                <li>Chun Shui Tang Bubble Tea</li>
+                <li>Yizhong Street Food</li>
+                <li>Taichung Meatballs (Rou Yuan)</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🌿 Nature</h5>
+              <ul>
+                <li>Gaomei Wetlands</li>
+                <li>Xinshe Castle</li>
+                <li>Dakeng Hiking Trails</li>
+                <li>Zhongshe Flower Market</li>
+                <li>Houfeng Bike Path</li>
+                <li>Lavender Cottage</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🖼️ Museums</h5>
+              <ul>
+                <li>National Taiwan Museum of Fine Arts</li>
+                <li>National Museum of Natural Science</li>
+                <li>Taichung Literature Museum</li>
+                <li>921 Earthquake Museum</li>
+                <li>Asia University Museum of Modern Art</li>
+                <li>Taichung Cultural Heritage Park</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>🛒 Shopping</h5>
+              <ul>
+                <li>Mitsui Outlet Park</li>
+                <li>Calligraphy Greenway</li>
+                <li>Shin Kong Mitsukoshi Taichung</li>
+                <li>Park Lane by CMP</li>
+                <li>Top City Department Store</li>
+                <li>Fengjia Night Market Shopping</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>⚡ Adventure</h5>
+              <ul>
+                <li>Skywalk at Xinshe Castle</li>
+                <li>Hiking Dakeng Trails</li>
+                <li>Hot Air Balloon Rides at Xinshe</li>
+                <li>Mountain Biking Houfeng Bikeway</li>
+                <li>Paragliding at Puli</li>
+                <li>Lihpao Discovery World Theme Park</li>
+              </ul>
+            </div>
+  
+            <div class="mb-4">
+              <h5>😌 Relaxation</h5>
+              <ul>
+                <li>Taichung Park</li>
+                <li>Maple Garden</li>
+                <li>Liuchuan Riverside Walk</li>
+                <li>Lavender Fields at Xinshe</li>
+                <li>Picnic at Fulfillment Amphitheater Park</li>
+                <li>Sunset at Gaomei Wetlands</li>
+              </ul>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tainanDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Tainan 🏯</h1>
+            <p class="lead text-muted mb-4">A city rich in history and flavor, known for ancient temples, street food, and coastal charm.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏰</span>
+                  <span>Chihkan Tower</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌳</span>
+                  <span>Sicao Green Tunnel</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🖼️</span>
+                  <span>Chimei Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛍️</span>
+                  <span>Garden Night Market</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚣</span>
+                  <span>Kayaking at Sicao Mangrove</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">☕</span>
+                  <span>Relax at Shennong Street</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Chihkan Tower Street Food, Danzai Noodles at Du Hsiao Yueh, Taiwanese Coffin Bread, Milkfish Dishes</li>
+              <li><strong>Nature:</strong> Anping Tree House, Taijiang National Park, Golden Beach, Meiling Scenic Area</li>
+              <li><strong>Museums:</strong> Tainan Art Museum, National Museum of Taiwan History, Koxinga Museum, Eternal Golden Castle</li>
+              <li><strong>Shopping:</strong> Hayashi Department Store, Blueprint Cultural Park, Anping Old Street Markets, Shennong Street Art Markets</li>
+              <li><strong>Adventure:</strong> Fort Zeelandia, Sandboarding at Chigu, Snorkeling at Yuguang Island, Mountain Hiking Meiling</li>
+              <li><strong>Relaxation:</strong> Sunset at Yuguang Island, Hot Springs at Guanziling, Coffee at Shennong Street, Tea Houses around Tainan Parks</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+
+  <div id="keelungDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Keelung 🌊</h1>
+            <p class="lead text-muted mb-4">A coastal gem offering seafood delights, rugged nature, rich history, and tranquil seaside moments.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🦑</span>
+                  <span>Miaokou Night Market</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌊</span>
+                  <span>Heping Island Park</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏛️</span>
+                  <span>Marine Science Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">⛱️</span>
+                  <span>Peace Island Beach</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛍️</span>
+                  <span>Zhengbin Port Color Houses</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚣</span>
+                  <span>Boat Tours around Keelung</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Miaokou Night Market, Crab Cuisine at Heping Island, Grilled Squid, Peanut Soup, Sashimi at Keelung Harbor</li>
+              <li><strong>Nature:</strong> Keelung Islet Tour, Waimu Shan Trail, Zhongzheng Park, Shen’ao Elephant Trunk Rock</li>
+              <li><strong>Museums:</strong> Badouzi Railway Museum, Keelung Cultural Center, Taiwan Maritime Museum, WW2 Ghost Ships Museum</li>
+              <li><strong>Shopping:</strong> E-Square Mall, Ren'ai Market, Sea Souvenir Shops, Badouzi Art Market</li>
+              <li><strong>Adventure:</strong> Snorkeling at Peace Island, Rock Climbing Waimu Shan, Coastal Biking, Trekking Dawulun Fort</li>
+              <li><strong>Relaxation:</strong> Heping Island Natural Pools, Sunset at Waimu Shan, Chaojing Park, Starry Views at Badouzi</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="hualienDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Hualien 🏞️</h1>
+            <p class="lead text-muted mb-4">A nature lover's paradise featuring dramatic gorges, tranquil lakes, and rich cultural heritage.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌄</span>
+                  <span>Taroko Gorge</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏖️</span>
+                  <span>Qixingtan Beach</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🥾</span>
+                  <span>Shakadang Trail</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏞️</span>
+                  <span>Liyu Lake</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏛️</span>
+                  <span>Stone Sculpture Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌅</span>
+                  <span>Qingshui Cliff</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Dongdamen Night Market, Gongzheng Baozi, Ziqiang Night Market, Hualien Mochi Shops</li>
+              <li><strong>Nature:</strong> Zhuilu Old Trail, Mukumugi Valley, Meilun Mountain Park, East Rift Valley</li>
+              <li><strong>Museums:</strong> Hualien Cultural Creative Park, Tzu Chi Cultural Center, Pine Garden Museum, Japanese Cultural Center</li>
+              <li><strong>Shopping:</strong> Hualien Jade Market, Far Eastern Department Store, Night Market Souvenirs, Aboriginal Handicraft Markets</li>
+              <li><strong>Adventure:</strong> Rafting Xiuguluan River, Whale Watching, Paragliding, SUP at Liyu Lake</li>
+              <li><strong>Relaxation:</strong> Hot Springs at Rueisuei, Star Gazing Qixingtan, Carp Lake Resorts, Meditation at Cliffs</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="chiayiDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Chiayi 🌲</h1>
+            <p class="lead text-muted mb-4">A gateway to Alishan’s misty mountains and forest railways, Chiayi charms with heritage, tea culture, and relaxing parks.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚂</span>
+                  <span>Alishan Forest Railway</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌄</span>
+                  <span>Sunrise Watching at Alishan</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏞️</span>
+                  <span>Chiayi Park</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏛️</span>
+                  <span>Chiayi Art Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🍱</span>
+                  <span>Fengqihu Bento Boxes</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛍️</span>
+                  <span>Wenhua Road Night Market</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Turkey Rice, Chiayi Goose Meat, Lu Rou Fan, Alishan Tea Cakes, Cold Noodles at Dongmen</li>
+              <li><strong>Nature:</strong> Yuantan Ecological Park, Renyitan Dam, Lantan Reservoir, Shizhuo Tea Plantations</li>
+              <li><strong>Museums:</strong> Chiayi Municipal Museum, Southern Branch of National Palace Museum, Chiayi Old Prison, Hinoki Village</li>
+              <li><strong>Shopping:</strong> Chiayi Wenhua Shopping District, Beimen Old Street, Nice Plaza, Fenqihu Street</li>
+              <li><strong>Adventure:</strong> Hiking Alishan Trails, River Tracing Bazhang River, Ziplining at Fenqihu, Hot Air Ballooning</li>
+              <li><strong>Relaxation:</strong> Tea Drinking in Fenqihu, Stargazing at Alishan, Japanese-style Hot Springs, Botanical Gardens Walks</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="taoyuanDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Taoyuan 🌇</h1>
+            <p class="lead text-muted mb-4">From lush mountains and scenic parks to vibrant night markets and cultural gems, Taoyuan has something for everyone.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌉</span>
+                  <span>Xiaowulai Skywalk</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛍️</span>
+                  <span>Gloria Outlets</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏞️</span>
+                  <span>Shimen Reservoir</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🎠</span>
+                  <span>Window on China Theme Park</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌄</span>
+                  <span>Lala Mountain</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🍢</span>
+                  <span>Zhongli Night Market</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Jingfu Night Market, Shimen Reservoir Fresh Fish, Daxi Tofu Street Specialties, Longgang Street Food, Tai Mall Food Court</li>
+              <li><strong>Nature:</strong> Daxi Old Street, Bade Pond Ecological Park, Sanmin Bat Cave Park, Yongan Fish Harbor, Hutoushan Park</li>
+              <li><strong>Museums:</strong> Coca-Cola Museum, Taoyuan 77 Art Zone, Taiwan Hakka Culture Hall, Military Museum of ROC Air Force, Chinese Furniture Museum</li>
+              <li><strong>Shopping:</strong> TaiMall, MetroWalk, Chungyuan Night Market Shopping, Shin Kong Mitsukoshi, Global Mall Taoyuan</li>
+              <li><strong>Adventure:</strong> Paragliding at Lala Mountain, River Tracing at Dongyanshan, SUP at Shimen Reservoir, Ziplining over Bade Pond, Hot Air Ballooning</li>
+              <li><strong>Relaxation:</strong> Tea Gardens in Longtan, Hot Springs at Bade, Cafe Hopping in Daxi, Meditation by Bade Lotus Pond, Sunset Views at Yongan Harbor</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="miaoliDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Miaoli 🏞️</h1>
+            <p class="lead text-muted mb-4">A hidden gem known for its Hakka heritage, scenic mountains, and artistic charm—Miaoli offers tranquility, adventure, and culture in perfect harmony.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🐄</span>
+                  <span>Flying Cow Ranch</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🛤️</span>
+                  <span>Shengxing Railway Station</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🪵</span>
+                  <span>Sanyi Wood Sculpture Museum</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">♨️</span>
+                  <span>Tai'an Hot Springs</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌉</span>
+                  <span>Lion's Head Mountain</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🍓</span>
+                  <span>Miaoli Strawberry Desserts</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Tongluo Hakka Cuisine, Zhunan Seafood Markets, Gongguan Duck Dishes, Hakka Sticky Rice, Shitang Hakka Farmhouse Cuisine</li>
+              <li><strong>Nature:</strong> Xiangtian Lake, Gongguan Riverside Park, Tai'an Forest Park, Nanzhuang Old Town Nature Walks, Yongheshan Reservoir</li>
+              <li><strong>Museums:</strong> Miaoli Hakka Cultural Museum, Zhunan Museum of History, Wood Sculpture Museum, Miaoli County Art Museum, Shitang Cultural and Historical Hall</li>
+              <li><strong>Shopping:</strong> Nanzhuang Old Street Shopping, Sanyi Art Street Souvenirs, Toufen Night Market, Miaoli Jade Market, Flying Cow Ranch Farm Shop</li>
+              <li><strong>Adventure:</strong> Mountain Biking at Nanzhuang, Ziplining Flying Cow Ranch, River Tracing Tiaozhan Creek, SUP on Yongheshan Reservoir, Horseback Riding Sanyi</li>
+              <li><strong>Relaxation:</strong> Walking in Nanzhuang Old Town, Sunset at Xiangtian Lake, Tea Time in Sanyi, Reading by the River in Gongguan, Soaking in Miaoli Spa</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pingtungDetails" class="page" style="display: none;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5">
+            <button class="btn btn-outline-primary mb-4" onclick="showPage('places')">
+              <i class="fas fa-arrow-left me-2"></i>Back to Places
+            </button>
+            <h1 class="mb-4">Explore Pingtung 🌊</h1>
+            <p class="lead text-muted mb-4">A tropical paradise in southern Taiwan, Pingtung blends beach life, rich Hakka culture, and vibrant marine biodiversity for an unforgettable escape.</p>
+  
+            <h4 class="mb-3">Top Attractions</h4>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🐠</span>
+                  <span>National Museum of Marine Biology</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏖️</span>
+                  <span>Kenting National Park</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🚴</span>
+                  <span>Dapeng Bay</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🍣</span>
+                  <span>Donggang Tuna Festival</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🌄</span>
+                  <span>Longpan Park</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <span class="fs-4 me-3">🏄</span>
+                  <span>Surfing in Kenting</span>
+                </div>
+              </div>
+            </div>
+  
+            <h4 class="mt-5 mb-3">More to Explore</h4>
+            <ul class="list-unstyled">
+              <li><strong>Food:</strong> Donggang Seafood, Pingtung Rice Noodles, Taro Ice Creams, Hakka Stir Fry, Fangliao Fresh Seafood</li>
+              <li><strong>Nature:</strong> Eluanbi Park, Jialeshui Scenic Area, Manzhou Township Eco Trails, Houbi Lake, Sheding Natural Park</li>
+              <li><strong>Museums:</strong> Liudui Hakka Cultural Park, Fangliao Story Museum, Donglong Temple Cultural Center, Taiwan Indigenous Peoples Cultural Park, Hengchun Old Town Museum</li>
+              <li><strong>Shopping:</strong> Kenting Street Market, Donggang Fish Markets, Pingtung Tourist Products Center, Shizi Township Crafts, Liudui Hakka Gifts Market</li>
+              <li><strong>Adventure:</strong> Snorkeling at Xiaoliuqiu, Skydiving in Pingtung, Kayaking at Checheng Wetlands, Whale Watching Kenting, Mountain Hiking Fangshan</li>
+              <li><strong>Relaxation:</strong> Hot Springs at Sichongxi, Sunbathing at Baisha Beach, Sunset Views at Longpan Park, Stargazing at Kenting, Taiwanese Massage near Hengchun</li>
+            </ul>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+  <!-- About Page -->
+  <div id="about" class="page" style="display: none;">
+    <div class="container">
+      <h1 class="section-title">About PlanMyTrip</h1>
+      
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="glass-card p-5 mb-4">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <h2 class="mb-4">Your Journey Starts Here 🌍✈️</h2>
+                <p class="text-muted mb-4">Welcome to PlanMyTrip! We are passionate travelers committed to making your Taiwan journey easy, fun, and unforgettable. Our AI-powered platform helps you discover Taiwan's most beautiful destinations, from the vibrant streets of Taipei to the serene landscapes of Hualien.</p>
+                <div class="bg-light p-3 rounded">
+                  <p class="mb-0">
+                    <strong>Contact us:</strong>
+                    <a href="mailto:info@planmytrip.com" class="text-decoration-none">info@planmytrip.com</a>
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <img src="https://images.unsplash.com/photo-1559181567-c3190ca9959b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Taiwan landscape" class="img-fluid rounded shadow">
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="glass-card p-4 h-100">
+                <div class="text-center mb-3">
+                  <i class="fas fa-heart fa-2x text-danger"></i>
+                </div>
+                <h5>Passionate Travelers</h5>
+                <p class="text-muted">We're a team of travel enthusiasts who love exploring Taiwan's hidden gems and sharing them with the world.</p>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="glass-card p-4 h-100">
+                <div class="text-center mb-3">
+                  <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                </div>
+                <h5>Local Expertise</h5>
+                <p class="text-muted">Our recommendations come from years of exploring Taiwan, from bustling night markets to serene mountain trails.</p>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="glass-card p-4 h-100">
+                <div class="text-center mb-3">
+                  <i class="fas fa-users fa-2x text-success"></i>
+                </div>
+                <h5>Community Driven</h5>
+                <p class="text-muted">Built by travelers, for travelers. We continuously improve based on feedback from our amazing community.</p>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="glass-card p-4 h-100">
+                <div class="text-center mb-3">
+                  <i class="fas fa-award fa-2x text-warning"></i>
+                </div>
+                <h5>Trusted Platform</h5>
+                <p class="text-muted">Thousands of travelers have used our platform to create unforgettable memories across Taiwan.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card p-5 mt-4 text-center">
+            <h3 class="mb-3">Our Mission</h3>
+            <p class="text-muted">To make Taiwan's incredible beauty and culture accessible to every traveler through intelligent planning tools and personalized recommendations. We believe every journey should be as unique as the person taking it.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-map-marked-alt fa-2x text-info me-3"></i>
+            <span class="footer-brand">PlanMyTrip</span>
+          </div>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="mb-0">
+            © 2025 Plan My Trip. Made with 
+            <i class="fas fa-heart text-danger mx-1"></i>
+            for Taiwan travelers
+          </p>
+        </div>
+      </div>
+      <hr class="my-3 opacity-25">
+      <div class="text-center">
+        <p class="mb-0 text-muted">Discover Taiwan's beauty • Create unforgettable memories • Travel with confidence</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Data
+    const destinations = {
+    Taipei: {
+      Food: [
+        "Shilin Night Market", "Din Tai Fung", "Yongkang Street Food", 
+        "Ningxia Night Market", "Tonghua Night Market", "Addiction Aquatic Development",
+        "Beef Noodle Soup Alley (Yongkang St.)", "Fuhang Soy Milk", "Ay-Chung Flour-Rice Noodle",
+        "Ice Monster", "Lehua Night Market", "Linjiang Street Night Market"
+      ],
+      Nature: [
+        "Elephant Mountain", "Yangmingshan National Park", "Beitou Hot Springs",
+        "Daan Forest Park", "Maokong Tea Plantations", "Treasure Hill Artist Village",
+        "Zhishan Garden", "Guandu Nature Park", "Taipei Botanical Garden",
+        "Jiantan Mountain Hiking Trail", "Bitan Scenic Area", "Fuyang Eco Park"
+      ],
+      Museums: [
+        "National Palace Museum", "Chiang Kai-shek Memorial Hall", "Museum of Contemporary Art (MOCA)",
+        "National Taiwan Museum", "Shung Ye Museum of Formosan Aborigines", "Postal Museum",
+        "Taipei Fine Arts Museum", "Museum of World Religions", "Miniatures Museum of Taiwan",
+        "Songshan Cultural and Creative Park", "Taipei Astronomical Museum", "Discovery Center of Taipei"
+      ],
+      Shopping: [
+        "Ximending", "Taipei 101 Mall", "Songshan Cultural and Creative Park",
+        "Breeze Center", "Q Square Mall", "ATT 4 Fun",
+        "SOGO Zhongxiao Fuxing", "Miramar Entertainment Park", "Taipei City Mall",
+        "Wufenpu Garment Wholesale Area", "Eslite Spectrum Songyan", "Shin Kong Mitsukoshi (Xinyi)"
+      ],
+      Adventure: [
+        "Maokong Gondola", "River Biking along Tamsui River", "Elephant Mountain Hiking",
+        "Urban zipline at Dajia Riverside Park", "Yangmingshan Hot Spring Trails",
+        "Camping at Fuyang Eco Park", "Night Biking along Keelung River",
+        "Paragliding at Wanli", "Urban Camping in Beitou", "Exploring Elephant Mountain Caves",
+        "Jet Ski at Bitan", "Mountain Climbing at Qixing Mountain"
+      ],
+      Relaxation: [
+        "Beitou Hot Springs", "Daan Forest Park", "Taipei Water Park",
+        "Thermal Valley", "Taipei Garden Spa", "Xinbeitou Historic Station",
+        "Relax at Bitan Scenic Area", "Tamsui Old Street Sunset", "Maokong Gondola Tea House visits",
+        "Yinhe Cave Waterfall", "Grand View Resort Spa", "Jingmei Riverside Park"
+      ]
+    },
+  
+    Kaohsiung: {
+      Food: [
+        "Ruifeng Night Market", "Liuhe Night Market", "Harbour Seafood",
+        "Cijin Old Street Seafood", "Kaohsiung Duck Rice", "Gangshan Mutton Hotpot",
+        "Fengshan Night Market", "Yancheng Duck Rice", "Gushan Ferry Market",
+        "Xinjiang BBQ Street", "Guanghua Night Market", "Bo'ai Road Dim Sum"
+      ],
+      Nature: [
+        "Cijin Island", "Shoushan (Monkey Mountain)", "Lotus Pond",
+        "Sizihwan Bay", "Kaohsiung Harbor", "Dapingding Wetland",
+        "Fo Guang Shan Buddha Museum", "Weiwuying Park", "Shoushan Zoo",
+        "Qijin Shell Museum", "Meinong Lake", "Chengcing Lake"
+      ],
+      Museums: [
+        "Pier-2 Art Center", "Kaohsiung Museum of Fine Arts", "National Science and Technology Museum",
+        "Kaohsiung Museum of History", "Takao Railway Museum", "Cijin Shell Museum",
+        "Military Dependents' Village Museum", "Former British Consulate at Takao",
+        "Weiwuying Cultural Center", "Kaohsiung Hakka Cultural Museum",
+        "Hongmaogang Cultural Park", "Fo Guang Shan Buddha Museum"
+      ],
+      Shopping: [
+        "Dream Mall", "Hanshin Department Store", "Taroko Park",
+        "E-DA Outlet Mall", "SKM Park", "SOGO Kaohsiung",
+        "Rueifong Night Market Shopping", "Cijin Island Souvenirs", "New Jyuejiang Shopping Area",
+        "Yancheng District Art Markets", "Sanduo Shopping District", "Kaohsiung Main Station Underground Mall"
+      ],
+      Adventure: [
+        "Love River Kayaking", "Sizihwan Bay Adventures", "Jet Ski at Cijin Beach",
+        "Snorkeling at Cijin", "Paragliding near Fo Guang Shan", "Urban Zipline at Dream Mall",
+        "Mountain Biking at Shoushan", "Hiking Banping Mountain", "Windsurfing Sizihwan",
+        "Kayaking around Lotus Pond", "Boat Rides at Love River", "Scuba Diving at Xiaoliuqiu (nearby)"
+      ],
+      Relaxation: [
+        "Cijin Beach", "Central Park", "Lotus Pond", 
+        "Pier-2 Seaside Park", "Relax at Kaohsiung Harbor Walk", "Weiwuying Park picnics",
+        "Meinong Cultural Villages", "Chengcing Lake walks", "Sunset at Sizihwan",
+        "Hot Springs at Tianliao", "Wandering Love River Promenade", "Seaview Cafes at Cijin Island"
+      ]
+    },
+    Taichung: {
+      Food: [
+        "Fengjia Night Market", "Miyahara Ice Cream", "Second Market Traditional Foods",
+        "Chun Shui Tang Bubble Tea", "Yizhong Street Food", "Taichung Meatballs (Rou Yuan)",
+        "Lu Chuan Night Market", "Liuchuan Riverside Street Food", "Dajia Taro Pastries",
+        "Fourth Credit Union Desserts", "Chuanlaoman Sichuan Hotpot", "Taichung Fried Chicken Shops"
+      ],
+      Nature: [
+        "Gaomei Wetlands", "Xinshe Castle", "Dakeng Hiking Trails",
+        "Zhongshe Flower Market", "Wuling Farm", "Houfeng Bike Path",
+        "Lavender Cottage", "Lishan Scenic Area", "Dongfeng Bicycle Green Way",
+        "Carton King Creativity Park", "Xitou Monster Village", "Sun Moon Lake (nearby)"
+      ],
+      Museums: [
+        "National Taiwan Museum of Fine Arts", "Rainbow Village", "National Museum of Natural Science",
+        "Taichung Literature Museum", "921 Earthquake Museum", "Asia University Museum of Modern Art",
+        "Taichung Cultural Heritage Park", "National Taichung Theater", "Taichung Broadcasting Bureau",
+        "CMP Block Museum of Arts", "Stock 20 Art Center", "Fantasy Story Cultural and Creative Park"
+      ],
+      Shopping: [
+        "Mitsui Outlet Park", "Calligraphy Greenway", "Shin Kong Mitsukoshi Taichung",
+        "Park Lane by CMP", "Top City Department Store", "Taroko Mall Taichung",
+        "Tiger City Mall", "Chungyo Department Store", "SOGO Taichung",
+        "Fengjia Night Market Shopping", "Yizhong Shopping Street", "ASEAN Square Night Market"
+      ],
+      Adventure: [
+        "Skywalk at Xinshe Castle", "Hiking Dakeng Trails", "Hot Air Balloon Rides at Xinshe",
+        "Ziplining at Dakeng", "Mountain Biking Houfeng Bikeway", "Camping at Wuling Farm",
+        "Paragliding at Puli", "Tree Climbing at Lavender Cottage", "SUP at Sun Moon Lake",
+        "Paintball at Dakeng", "Karting at Lihpao Land", "Lihpao Discovery World Theme Park"
+      ],
+      Relaxation: [
+        "Taichung Park", "Maple Garden", "Liuchuan Riverside Walk",
+        "Zhongshe Flower Market Relaxation", "Dakeng Hot Springs", "Lavender Fields at Xinshe",
+        "Picnic at Fulfillment Amphitheater Park", "Tea Houses at Houli", "Sunset at Gaomei Wetlands",
+        "Wandering around Painted Animation Lane", "Xinwuri Forest Park", "Dajia Riverside Park"
+      ]
+    },
+  
+    Tainan: {
+      Food: [
+        "Chihkan Tower Street Food", "Garden Night Market", "Anping Old Street Food",
+        "Guohua Street Food", "Dadong Night Market", "Wusheng Night Market",
+        "Danzai Noodles at Du Hsiao Yueh", "Taiwanese Coffin Bread", "Fried Eel Noodles",
+        "Milkfish Dishes", "Bao'an Road Local Eats", "Shennong Street Cafes"
+      ],
+      Nature: [
+        "Sicao Green Tunnel", "Anping Tree House", "Taijiang National Park",
+        "Chigu Salt Mountain", "Golden Beach", "Wushantou Reservoir",
+        "Xinhua Old Street & Forest", "Tainan Metropolitan Park", "Yuguang Island",
+        "Luerhmen Shengmu Park", "Jingzaijiao Tile-Paved Salt Fields", "Meiling Scenic Area"
+      ],
+      Museums: [
+        "Chimei Museum", "Tainan Art Museum", "National Museum of Taiwan History",
+        "Tainan Judicial Museum", "Anping Fort Museum", "Koxinga Museum",
+        "Sio House (Salt Museum)", "Tainan City Art Museum II", "Eternal Golden Castle",
+        "Taiwan Salt Museum", "Former Tainan Weather Observatory", "Museum of Archaeology, Tainan Branch"
+      ],
+      Shopping: [
+        "Shinkong Mitsukoshi Mall", "Focus Square", "Hayashi Department Store",
+        "Blueprint Cultural & Creative Park", "Anping Old Street Markets", "Dadong Night Market Shopping",
+        "Garden Night Market Souvenirs", "Ximen Circle Shopping Area", "FE21 Mega Tainan",
+        "Shennong Street Art Markets", "Chihkan Tower Local Products", "Minsheng Green Park Market"
+      ],
+      Adventure: [
+        "Kayaking Sicao Mangrove", "Explore Fort Zeelandia", "Biking along Gold Coast",
+        "Sandboarding at Chigu", "Snorkeling at Yuguang Island", "Mudflat hiking",
+        "River tracing at Zengwen River", "Ziplining at Hutoupi Scenic Area", "Mountain Hiking Meiling",
+        "Fishing Villages Exploration", "Horse Riding in Shanhua", "Taiwan's Old Fort Adventure Walks"
+      ],
+      Relaxation: [
+        "Anping Old Street", "Chimei Park", "Golden Beach Sunbathing",
+        "Sicao Mangrove Boat Tour", "Sunset at Yuguang Island", "Chigu Beach Walks",
+        "Relax at Meiling Lotus Pond", "Coffee at Shennong Street", "Picnic at Taijiang National Park",
+        "Fishing at Zengwen Reservoir", "Hot Springs at Guanziling", "Tea Houses around Tainan Parks"
+      ]
+    },
+  
+    Keelung: {
+      Food: [
+        "Miaokou Night Market", "Zhengbin Port Color Houses Cafes", "Seafood at Peace Island",
+        "Crab Cuisine at Heping Island", "Steamed Buns at Miaokou", "Grilled Squid Street Food",
+        "Sweet Peanut Soup", "Stir-fried Eels", "Thick Pork Soup", "Sashimi at Keelung Harbor",
+        "Oyster Omelette", "Tempura Stalls"
+      ],
+      Nature: [
+        "Heping Island Park", "Keelung Islet Tour", "Badouzi Coastal Park",
+        "Waimu Shan Seaside Trail", "Zhongzheng Park", "Dawulun Fort",
+        "Bisha Fishing Port", "Wangyou Valley", "Chaojing Park",
+        "Dawulun Beach", "Peace Island Beach", "Shen’ao Elephant Trunk Rock"
+      ],
+      Museums: [
+        "National Museum of Marine Science & Technology", "Keelung Cultural Center",
+        "Badouzi Railway Museum", "Taiwan Waterworks Museum", "Keelung History Museum",
+        "Taiwan Maritime Museum", "Keelung Art Center", "Memory Museum of WW2 (Ghost Ships)",
+        "Chaojing Bay Environmental Education Center", "Oceanographic Museum",
+        "War and Peace Memorial Park Exhibition Center", "Sea World Keelung (small exhibitions)"
+      ],
+      Shopping: [
+        "Keelung Night Market Area", "Ren'ai Market", "E-Square Shopping Mall",
+        "Miaokou Night Market Souvenirs", "Seafood Souvenir Shops", "Badouzi Art Market",
+        "Zhengbin Port Boutique Stores", "Qidu Shopping Streets", "Waimu Shan Street Shopping",
+        "Port of Keelung Local Market", "Old Town Keelung Shops", "Peace Island Mini Market"
+      ],
+      Adventure: [
+        "Boat Tours around Keelung", "Fishing Trips at Bisha Port", "Snorkeling near Peace Island",
+        "Kayaking near Keelung Islet", "Rock Climbing at Waimu Shan", "Coastal Biking Tours",
+        "Underwater Diving Tours", "Sunrise Hikes at Zhongzheng Park", "Trekking to Dawulun Fort",
+        "Exploring Keelung Ghost Houses", "Parasailing off the coast", "Exploring abandoned forts"
+      ],
+      Relaxation: [
+        "Zhongzheng Park", "Heping Island Natural Pools", "Sea Breeze Cafes at Badouzi",
+        "Sunset at Waimu Shan", "Picnic at Peace Island", "Fisherman Wharf Walk",
+        "Bisha Harbor Seafood Restaurants", "Chaojing Park Bench Views",
+        "Harborfront Relaxation at Port of Keelung", "Yacht Watching at Marina",
+        "Meditative Walks at Wangyou Valley", "Starry Sky Viewing at Badouzi"
+      ]
+    },
+    Hualien: {
+      Food: [
+        "Dongdamen Night Market", "Seafood at Hualien Harbor", "Gongzheng Baozi (Steamed Buns)",
+        "Ziqiang Night Market", "Hualien Mochi Shops", "Chunghua Dumplings",
+        "Yi Xiang Won Ton", "Bao Restaurant Indigenous Dishes", "Salt Lick American BBQ",
+        "Minnan Taiwanese Food", "Yong Sheng Baozi", "Tungtamen Aboriginal Food"
+      ],
+      Nature: [
+        "Taroko Gorge", "Qixingtan Beach", "Shakadang Trail", 
+        "Zhuilu Old Trail", "Liyu Lake", "Mukumugi Valley",
+        "Farglory Ocean Park Natural Views", "Qingshui Cliff", "Meilun Mountain Park",
+        "Cingsio Temple Coastal Park", "Hualien Farglory Ocean Park (outdoors)", "East Rift Valley"
+      ],
+      Museums: [
+        "Hualien Cultural Creative Industries Park", "Stone Sculpture Museum",
+        "Hualien Railway Culture Park", "Tzu Chi Cultural and Communication Center",
+        "Hualien Martyrs Shrine", "Lintienshan Forestry Cultural Area",
+        "Tzu Chi Great Love Village", "Hualien County Indigenous Museum",
+        "National Dong Hwa University Arts Center", "Hualien Ji’an Hakka Cultural Museum",
+        "Pine Garden Cultural Museum", "Hualien Japanese Cultural Center"
+      ],
+      Shopping: [
+        "Nanbin Night Market", "Dongdamen Night Market Souvenirs", "Hualien Jade Market",
+        "Far Eastern Department Store Hualien", "Minnan Street Shops", "Chongqing Night Market",
+        "Pacific Department Store Hualien", "Meilun Night Market", "Aboriginal Handicraft Markets",
+        "Old Hualien Railway Shopping Streets", "Dai’s Black Tea Souvenirs", "Jade Carving Stores"
+      ],
+      Adventure: [
+        "Rafting Xiuguluan River", "Hiking Taroko Gorge Trails", "Paragliding over East Rift Valley",
+        "Cycling Qixingtan Coast", "Whale Watching Tours", "Diving around Qingshui Cliff",
+        "Ziplining over Mukumugi Valley", "Rock Climbing Taroko Cliffs", "Caving in Swallow Grotto",
+        "River Tracing at Mugua River", "SUP Boarding at Liyu Lake", "Surfing at Jici Beach"
+      ],
+      Relaxation: [
+        "Chihsingtan Beach", "Liyu Lake Paddle Boats", "Hot Springs at Rueisuei",
+        "Qixingtan Star Gazing", "Picnic at Meilun Park", "Meditation at Cingshuei Cliffs",
+        "Walking along Dongdamen Boardwalk", "Hualien Cultural Park Chill Areas",
+        "Sunset Watching Qixingtan", "Flower Watching in East Rift Valley",
+        "Taiwan Cypress Spa Villages", "Relax at Carp Lake Resorts"
+      ]
+    },
+  
+    Chiayi: {
+      Food: [
+        "Wenhua Road Night Market", "Turkey Rice", "Chiayi Fish Head Casserole",
+        "Chiayi Goose Meat", "Lu Rou Fan Stalls", "Shuishang Old Street Food",
+        "Fengqihu Bento Boxes", "Beimen Old Street Snacks", "Minxiong Coffee Shops",
+        "Cold Noodles at Dongmen Night Market", "Alishan Tea Cakes", "Fruit Ice Shaved Desserts"
+      ],
+      Nature: [
+        "Alishan National Scenic Area", "Yuantan Ecological Park", "Renyitan Dam and Park",
+        "Lantan Reservoir", "Hinoki Village Gardens", "Eryanping Trail",
+        "Fenqihu Forest Trails", "Zengwen Reservoir", "Sun Shooting Tower Park",
+        "Dongshi Fisherman's Wharf", "Shizhuo Tea Plantations", "Chiayi Park Botanical Garden"
+      ],
+      Museums: [
+        "Chiayi Art Museum", "Chiayi Municipal Museum", "Chiayi City Historical Relic Museum",
+        "Hinoki Village Historical Area", "Alishan Forest Railway Garage Park",
+        "Southern Branch of National Palace Museum", "Chiayi Old Prison Museum",
+        "Chiayi Cultural and Creative Industries Park", "Shuishang Cultural Park",
+        "Minxiong Ghost House (Historical Site)", "Taiwan Hinoki Museum", "Chiayi Literature Museum"
+      ],
+      Shopping: [
+        "Chiayi Wenhua Shopping District", "Fountain Circle Shopping Street",
+        "Shinkong Mitsukoshi Chiayi", "Nice Plaza Chiayi", "Wenhua Night Market Souvenirs",
+        "Lantan Shopping Streets", "Beimen Old Street Market", "Chiayi Train Station Shopping Zone",
+        "Chiayi East District Night Market", "Dingshan Street Old Shops", "Chiayi Park Flea Market",
+        "Fenqihu Street Shopping"
+      ],
+      Adventure: [
+        "Alishan Forest Railway", "Hiking Alishan Trails", "Sunrise Watching at Alishan",
+        "River Tracing Bazhang River", "Hot Air Ballooning near Chiayi",
+        "Skywalks at Eryanping", "Cycling Lantan to Renyitan Trails",
+        "Tea Plantation Tours in Alishan", "Horseback Riding Shuishang",
+        "Paragliding Shizilu", "Bamboo Rafting Zengwen Reservoir", "Ziplining at Fenqihu"
+      ],
+      Relaxation: [
+        "Hinoki Village", "Chiayi Park", "Lantan Scenic Area Walks",
+        "Botanical Gardens Chiayi", "Relax at Renyitan Park", "Tea Drinking in Fenqihu",
+        "Sunset at Beimen Park", "Quiet Cafes at Minxiong", "Shuishang Lotus Pond Relax",
+        "Walking around Alishan Tea Villages", "Japanese-style Hot Springs near Shuishang",
+        "Stargazing at Alishan"
+      ]
+    },
+  
+    Taoyuan: {
+      Food: [
+        "Zhongli Night Market", "Jingfu Night Market", "Baoyun Night Market",
+        "Shimen Reservoir Fresh Fish", "Old Street Snacks at Daxi", "Longgang Street Food",
+        "Chungyuan Night Market", "Taoyuan Yong'an Street Food", "Guishan District Eats",
+        "Luzhu Night Market", "Tai Mall Food Court", "Daxi Tofu Street Specialties"
+      ],
+      Nature: [
+        "Daxi Old Street", "Shimen Reservoir", "Lala Mountain", 
+        "Window on China Miniature Theme Park", "Shihmen Dam Scenic Area",
+        "Bade Pond Ecological Park", "Yongan Fish Harbor", "Sanmin Bat Cave Park",
+        "Gongyuan Road Park", "Xiaowulai Skywalk", "Hutoushan Park", "Tianliao Moon World (nearby)"
+      ],
+      Museums: [
+        "Hutoushan Innovation Hub", "Coca-Cola Museum Taoyuan", "Taiwan Hakka Culture Hall",
+        "Taoyuan 77 Art Zone", "Daxi Wood Art Eco Museum", "Yingge Ceramics Museum (nearby)",
+        "Taoyuan Children's Art Center", "Taipei Aerospace Museum (nearby)",
+        "Zhongli Arts Hall", "Bade Military History Park", "Military Museum of ROC Air Force",
+        "Chinese Furniture Museum"
+      ],
+      Shopping: [
+        "Gloria Outlets", "TaiMall Shopping Center", "MetroWalk Shopping Center",
+        "ATT e Life Taoyuan", "Zhongli SOGO", "Chungyuan Night Market Shopping",
+        "Daxi Old Street Shopping", "Global Mall Taoyuan", "Bade Night Market",
+        "Shin Kong Mitsukoshi Taoyuan", "Sunrise Mall", "Yi Lan Night Market"
+      ],
+      Adventure: [
+        "Window on China Theme Park", "Xiaowulai Skywalk Adventures", "Biking around Shimen Reservoir",
+        "Paragliding Lala Mountain", "Ziplining over Bade Pond", "River Tracing at Dongyanshan",
+        "Hiking Hutoushan Park Trails", "SUP at Shimen Reservoir", "Camping at Lala Mountain",
+        "ATV Adventures Lala Mountain", "Hot Air Ballooning near Taoyuan", "Cliff Diving near Shimen"
+      ],
+      Relaxation: [
+        "Lala Mountain Recreation Area", "Shimen Reservoir Picnic Areas", "Hot Springs at Bade",
+        "Peaceful Walks at Hutoushan Park", "Strolling Daxi Old Streets", "Chilling by Yongan Fishing Port",
+        "Nature Watching at Xiaowulai", "Cafe Hopping Daxi", "Tea Gardens in Longtan",
+        "Relaxation by Sanmin Park", "Sunset Views at Yongan Harbor", "Meditation by Bade Lotus Pond"
+      ]
+    },
+  
+    Miaoli: {
+      Food: [
+        "Tongluo Hakka Cuisine", "Sanyi Traditional Dishes", "Flying Cow Ranch Meals",
+        "Miaoli Strawberry Desserts", "Zhunan Seafood Markets", "Gongguan Duck Dishes",
+        "Miaoli Beef Noodles", "Nanzhuang Old Street Food", "Toufen Street Snacks",
+        "Hakka Sticky Rice", "Miaoli Hot Pot Restaurants", "Shitang Hakka Farmhouse Cuisine"
+      ],
+      Nature: [
+        "Sanyi Wood Sculpture Museum", "Flying Cow Ranch", "Shengxing Railway Station",
+        "Tai'an Hot Springs", "Gongguan Riverside Park", "Xiangtian Lake",
+        "Nanzhuang Old Town Nature Walks", "Tiaozhan Trail", "Yongheshan Reservoir",
+        "Xueba National Park (entry from Miaoli)", "Tai'an Forest Park", "Lion's Head Mountain"
+      ],
+      Museums: [
+        "Sanyi Railway Museum", "Miaoli Hakka Cultural Museum", "Zhunan Museum of History",
+        "Tongluo Railway Park", "Tai'an Folk Culture Museum", "Gongguan Story Museum",
+        "Houlong Iron Museum", "Shitang Cultural and Historical Hall", "Nanzhuang Living Museum",
+        "Miaoli County Art Museum", "Wood Sculpture Museum", "Miaoli Stone Carving Exhibition Center"
+      ],
+      Shopping: [
+        "Miaoli Traditional Markets", "Nanzhuang Old Street Shopping", "Sanyi Art Street Souvenirs",
+        "Toufen Night Market", "Zhunan Traditional Night Market", "Miaoli Jade Market",
+        "Gongguan Farmers' Markets", "Shengxing Old Street Souvenirs", "Flying Cow Ranch Farm Shop",
+        "Shitang Hakka Art Markets", "Lion’s Head Mountain Market", "Tai'an Farmers Markets"
+      ],
+      Adventure: [
+        "Mountain Biking at Nanzhuang", "Hiking Lion's Head Mountain", "Camping at Tai'an Hot Springs",
+        "River Tracing Tiaozhan Creek", "Cycling Shengxing Trails", "Rock Climbing Miaoli Cliffs",
+        "SUP on Yongheshan Reservoir", "Trail Running Xiangtian Lake", "Bamboo Rafting at Gongguan",
+        "Ziplining Flying Cow Ranch", "Caving in Miaoli", "Horseback Riding Sanyi"
+      ],
+      Relaxation: [
+        "Tianzhong Park", "Tai'an Hot Spring Resorts", "Walking in Nanzhuang Old Town",
+        "Relaxing at Shengxing Old Station", "Picnics at Gongguan Riverside Park",
+        "Sunset at Xiangtian Lake", "Nature Strolling at Xueba Park", "Tea Time in Sanyi",
+        "Reading by the River in Gongguan", "Meditation at Tai'an Forest", "Soaking in Miaoli Spa",
+        "Cafe Hopping Miaoli Old Streets"
+      ]
+    },
+  
+    Pingtung: {
+      Food: [
+        "Donggang Seafood", "Night Markets", "Tuna Sashimi at Donggang", "Chaozhou Night Market",
+        "Kenting Night Markets", "Pingtung Rice Noodles", "Taro Ice Creams", "Black Pearl Wax Apples",
+        "Donggang Tuna Festival Foods", "Hakka Stir Fry", "Fangliao Fresh Seafood", "Liudui Hakka Food"
+      ],
+      Nature: [
+        "Kenting National Park", "Dapeng Bay", "Longpan Park", "Eluanbi Park",
+        "Fangshan Coastline", "Jialeshui Scenic Area", "Shadao Beach",
+        "Manzhou Township Eco Trails", "Checheng Coastal Wetlands",
+        "Houbi Lake", "Sheding Natural Park", "Qikou Coastal Park"
+      ],
+      Museums: [
+        "Pingtung Art Museum", "National Museum of Marine Biology", "Liudui Hakka Cultural Park",
+        "Kenting National Park Visitor Center", "Fangliao Story Museum", "Donglong Temple Cultural Center",
+        "Pingtung Cultural Affairs Bureau", "Dapeng Bay Story House", "Taiwan Indigenous Peoples Cultural Park",
+        "Sichongxi Hot Spring Culture Museum", "Pingtung Sugar Factory Museum", "Hengchun Old Town Museum"
+      ],
+      Shopping: [
+        "Pingtung Night Markets", "Donggang Fish Markets", "Kenting Street Market",
+        "Fangliao Harbor Shopping", "Pingtung Traditional Morning Market",
+        "Dapeng Bay Souvenirs", "Sichongxi Hot Spring Shops", "Donglong Temple Street Markets",
+        "Checheng Night Markets", "Shizi Township Crafts", "Pingtung Tourist Products Center", "Liudui Hakka Gifts Market"
+      ],
+      Adventure: [
+        "Snorkeling at Xiaoliuqiu", "Surfing in Kenting", "Scuba Diving at Dapeng Bay",
+        "Biking around Kenting", "SUP Boarding at Houbi Lake", "Skydiving in Pingtung",
+        "Rock Climbing Longpan Park", "Camping by Jialeshui", "Kayaking at Checheng Wetlands",
+        "Whale Watching Kenting", "Mountain Hiking Fangshan", "Eco Adventures at Manzhou"
+      ],
+      Relaxation: [
+        "Jialeshui Scenic Area", "Hot Springs at Sichongxi", "Sunbathing at Baisha Beach",
+        "Picnic at Dapeng Bay", "Cafe Hopping at Kenting", "Spa Resorts near Checheng",
+        "Sunset Views at Longpan Park", "Beach Yoga at Shadao", "Slow Walk at Fangshan",
+        "Lounging at Houbi Lake", "Stargazing at Kenting", "Taiwanese Massage near Hengchun"
+      ]
+    }
+  }
+
+    // Show Page Function
+    function showPage(pageId, event) {
+      // Hide all pages
+      const pages = document.querySelectorAll('.page');
+      pages.forEach(page => page.style.display = 'none');
+      
+      // Show selected page
+      document.getElementById(pageId).style.display = 'block';
+      
+      // Update nav links
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => link.classList.remove('active'));
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    // Show City Details
+    function showCityDetails(city) {
+      const pageMap = {
+        'taipei': 'taipeiDetails',
+        'kaohsiung': 'kaohsiungDetails',
+        'taichung': 'taichungDetails',
+        'tainan': 'tainanDetails',
+        'keelung': 'keelungDetails',
+        'hualien': 'hualienDetails',
+        'chiayi': 'chiayiDetails',
+        'taoyuan': 'taoyuanDetails',
+        'miaoli': 'miaoliDetails',
+        'pingtung': 'pingtungDetails',
+        
+      };
+      
+      if (pageMap[city]) {
+        showPage(pageMap[city]);
+      }
+    }
+
+    // Surprise Me Function
+    function surpriseMe() {
+      const allCities = Object.keys(destinations);
+      const randomCities = allCities.sort(() => 0.5 - Math.random()).slice(0, Math.random() > 0.5 ? 2 : 1);
+      const randomInterests = ["Food", "Nature", "Museums", "Shopping", "Adventure", "Relaxation"]
+        .sort(() => 0.5 - Math.random()).slice(0, 3);
+      const randomDays = Math.floor(Math.random() * 10) + 1;
+
+      // Set destination
+      const destinationSelect = document.getElementById('destination');
+      Array.from(destinationSelect.options).forEach(option => {
+        option.selected = randomCities.includes(option.value);
+      });
+
+      // Set interests
+      const interestsSelect = document.getElementById('interests');
+      Array.from(interestsSelect.options).forEach(option => {
+        option.selected = randomInterests.some(interest => option.value === interest);
+      });
+
+      // Set days
+      document.getElementById('days').value = randomDays;
+
+      // Show notification
+      alert(`🎲 Surprise trip generated! ${randomCities.join(', ')} for ${randomDays} days`);
+    }
+
+    // Generate Activities
+    function generateActivities(destination, interests, usedPlaces) {
+  const cityData = destinations[destination];
+  if (!cityData) return "Explore freely!";
+
+  const selected = interests.length ? interests : Object.keys(cityData);
+  const shuffled = selected.sort(() => 0.5 - Math.random());
+
+  const picked = [];
+
+  for (let interest of shuffled) {
+    const places = cityData[interest];
+    if (!places) continue;
+
+    // ✅ Filter out already-used places
+    const available = places.filter(place => !usedPlaces.has(place));
+    if (available.length === 0) continue;
+
+    // ✅ Randomly pick a place from unused ones
+    const chosenPlace = available[Math.floor(Math.random() * available.length)];
+    usedPlaces.add(chosenPlace); // ✅ Mark as used
+
+    picked.push(`Visit <strong>${chosenPlace}</strong> (${interest})`);
+
+    if (picked.length === 2) break; // Limit to 2 activities per day
+  }
+
+  return picked.join(' + ') || "Explore freely!";
+}
+
+
+    // Generate Itinerary
+    function generateItinerary(cities, days, interests) {
+  let itinerary = `<div class="mb-4">
+    <h4><i class="fas fa-map-marker-alt me-2"></i>Destinations: ${cities.join(', ')}</h4>
+    <h5><i class="fas fa-calendar me-2"></i>Duration: ${days} days</h5>
+    <p><i class="fas fa-heart me-2"></i>Interests: ${interests.length ? interests.join(', ') : 'All activities'}</p>
+  </div><ul class="list-unstyled">`;
+
+  const daysPerCity = Math.floor(days / cities.length);
+  const extraDays = days % cities.length;
+
+  const usedPlaces = new Set(); // ✅ Track visited places globally
+
+  for (let i = 0; i < cities.length; i++) {
+    const city = cities[i];
+    const daysInCity = daysPerCity + (i < extraDays ? 1 : 0);
+
+    itinerary += `<li class="mb-4">
+      <h5 class="text-primary"><i class="fas fa-city me-2"></i>${city}</h5>
+      <ul class="list-unstyled ms-4">`;
+
+    for (let d = 1; d <= daysInCity; d++) {
+      const activities = generateActivities(city, interests, usedPlaces); // ✅ Pass the set
+      itinerary += `<li class="mb-2 p-3 bg-light rounded">
+        <strong>Day ${d}:</strong> ${activities}
+      </li>`;
+    }
+    itinerary += `</ul></li>`;
+  }
+
+  itinerary += `</ul>`;
+  document.getElementById('itineraryContent').innerHTML = itinerary;
+}
+
+
+    // Save Itinerary
+    function saveItinerary() {
+      const content = document.getElementById('itineraryContent').innerText;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'my-taiwan-itinerary.txt';
+      link.click();
+      
+      alert('💾 Itinerary saved successfully!');
+    }
+
+    // Form Submit Handler
+    document.getElementById('tripForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const selectedCities = Array.from(document.getElementById('destination').selectedOptions)
+        .map(opt => opt.value);
+      
+      if (selectedCities.length === 0 || selectedCities.length > 2) {
+        alert('Please select 1 or 2 cities.');
+        return;
+      }
+
+      const days = parseInt(document.getElementById('days').value);
+      if (!days || days < 1 || days > 30) {
+        alert('Please enter a valid number of days (1-30).');
+        return;
+      }
+
+      const interests = Array.from(document.getElementById('interests').selectedOptions)
+        .map(opt => opt.value);
+
+      // Show spinner
+      document.getElementById('spinner').style.display = 'block';
+      document.getElementById('itinerary').style.display = 'none';
+
+      // Simulate API call
+      setTimeout(() => {
+        generateItinerary(selectedCities, days, interests);
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('itinerary').style.display = 'block';
+        document.getElementById('itinerary').scrollIntoView({ behavior: 'smooth' });
+      }, 2000);
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      showPage('hero');
+    });
+  </script>
+</body>
+</html>
